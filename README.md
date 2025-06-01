@@ -58,7 +58,7 @@ This tool is perfect for students, researchers, or anyone who needs to quickly g
 * **Markdown Rendering:** [react-markdown](https://github.com/remarkjs/react-markdown) with `remark-gfm`
 * **Text Area Autosize:** [react-textarea-autosize](https://github.com/Andarist/react-textarea-autosize)
 * **Styling:** [Tailwind CSS](https://tailwindcss.com/) (via CDN for simplicity in this setup)
-* **Content Hashing:** Web Crypto API (SHA-256)
+* **Content Hashing:** Web Crypto API (SHA-256) (thanks @nadwiss)
 
 ---
 
