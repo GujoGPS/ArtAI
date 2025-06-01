@@ -1,6 +1,8 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import type { ChatMessage } from '../types';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import TextareaAutosize from 'react-textarea-autosize';
 
 interface ChatInterfaceProps {
   messages: ChatMessage[];
@@ -43,8 +45,16 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
   useEffect(scrollToBottom, [messages]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Se o usuário apertar Enter sem a tecla Shift, envie a mensagem
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault(); // Impede a quebra de linha
+      handleSubmit();
+    }
+    // Se apertar Enter com Shift, o comportamento padrão (nova linha) acontece
+  };
+
+  const handleSubmit = () => {
     if (inputText.trim() && !isLoading) {
       onSendMessage(inputText);
       setInputText('');
@@ -81,13 +91,22 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
               </div>
             )}
             <div
-              className={`max-w-xs lg:max-w-md px-4 py-2 rounded-xl shadow ${
+              className={`max-w-xs lg:max-w-md px-4 py-2 rounded-xl shadow text-sm ${
                 msg.sender === 'user'
                   ? 'bg-sky-600 text-white'
                   : 'bg-slate-700 text-slate-100'
               }`}
             >
-              <p className="text-sm whitespace-pre-wrap">{msg.text}</p>
+              {msg.sender === 'ai' ? (
+                <div className="markdown-content">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {msg.text}
+                  </ReactMarkdown>
+                </div>
+              ) : (
+                <p className="whitespace-pre-wrap">{msg.text}</p>
+              )}
+
               <p className={`text-xs mt-1 ${msg.sender === 'user' ? 'text-sky-200 text-right' : 'text-slate-400 text-left'}`}>
                 {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </p>
@@ -101,19 +120,21 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         ))}
         <div ref={messagesEndRef} />
       </div>
-      <form onSubmit={handleSubmit} className="flex items-center">
-        <input
-          type="text"
+      <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="flex items-end">
+        <TextareaAutosize
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
+          onKeyDown={handleKeyDown}
           placeholder={isLoading ? "AI is thinking..." : "Type your message..."}
-          className="flex-grow p-3 border border-slate-600 rounded-l-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none bg-slate-700 text-slate-100 placeholder-slate-400"
+          className="flex-grow p-3 border border-slate-600 rounded-l-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none bg-slate-700 text-slate-100 placeholder-slate-400 resize-none"
           disabled={isLoading}
+          maxRows={7}
+          minRows={1}
         />
         <button
           type="submit"
           disabled={isLoading || !inputText.trim()}
-          className="bg-sky-600 text-white p-3 rounded-r-lg hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-opacity-50 disabled:bg-slate-500 disabled:cursor-not-allowed transition-colors"
+          className="bg-sky-600 text-white p-3 rounded-r-lg hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-opacity-50 disabled:bg-slate-500 disabled:cursor-not-allowed transition-colors self-stretch"
         >
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
             <path d="M3.105 3.105a.75.75 0 0 1 .814-.156L16.75 8.25a.75.75 0 0 1 0 1.312L3.919 14.828a.75.75 0 0 1-1.04-.814l1.42-6.243L3.105 3.105Z" />
