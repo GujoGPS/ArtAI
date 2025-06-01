@@ -1,0 +1,5 @@
+{
+  "name": "ArtAI",
+  "description": "An AI-powered PDF analyzer that allows users to upload PDF documents, view them, and chat with an AI assistant to get insights or ask questions about the PDF content or general topics.",
+  "requestFramePermissions": []
+}
