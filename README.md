@@ -158,7 +158,7 @@ npm start
 │   │   ├── PdfViewer.tsx
 │   │   └── Sidebar.tsx
 │   ├── services/
-│   │   └── geminiService.ts # Now calls the backend
+│   │   └── geminiService.ts
 │   ├── App.tsx
 │   ├── index.css
 │   ├── index.tsx
