@@ -1,58 +1,51 @@
+// Frontend service to interact with our local backend proxy for Gemini API calls.
+// This keeps the actual API key secure on the server.
 
-import { GoogleGenAI, Chat, GenerateContentResponse } from "@google/genai";
+const PROXY_SERVER_URL = 'http://localhost:3001/api/generate';
 
-const API_KEY = process.env.API_KEY;
-
-let ai: GoogleGenAI | null = null;
-let chat: Chat | null = null; // Singleton chat instance
-
-function getAiInstance(): GoogleGenAI {
-  if (!ai) {
-    if (!API_KEY) {
-      console.error("Gemini API key (process.env.API_KEY) is not configured.");
-      // This error should ideally be caught and displayed to the user in the UI.
-      // For now, it will break the AI functionality.
-      throw new Error("Gemini API key is not configured. Please set process.env.API_KEY.");
-    }
-    ai = new GoogleGenAI({ apiKey: API_KEY });
-  }
-  return ai;
-}
-
-async function getChatInstance(): Promise<Chat> {
-  if (!chat) {
-    const currentAi = getAiInstance();
-    // Initialize the chat model.
-    // System instructions can be added here if a persistent persona is desired.
-    // For now, context is primarily driven by the augmented prompt.
-    chat = currentAi.chats.create({
-      model: 'gemini-2.5-flash-preview-04-17',
-      // Example:
-      // config: {
-      //   systemInstruction: "You are a helpful assistant analyzing PDF documents.",
-      // }
-    });
-  }
-  return chat;
-}
-
+/**
+ * Sends a prompt to our backend, which then calls the Gemini API.
+ * @param prompt - The complete prompt string.
+ * @returns Promise resolving to the AI's text response.
+ */
 export async function sendMessageToGemini(prompt: string): Promise<string> {
   try {
-    const chatInstance = await getChatInstance();
-    // Stream can be used here for progressive responses: chatInstance.sendMessageStream({ message: prompt });
-    // For simplicity, using non-streaming sendMessage.
-    const result: GenerateContentResponse = await chatInstance.sendMessage({ message: prompt });
-    return result.text;
-  } catch (error) {
-    console.error("Error sending message to Gemini:", error);
-    // It's good practice to check the error type and provide more specific messages.
-    // For example, handle API key errors, quota issues, etc. differently.
-    if (error instanceof Error) {
-        // For certain errors, we might want to reset the chat instance
-        // e.g., if the session becomes invalid. Not implemented here for brevity.
-        // Also, we return the error message for display in the chat.
-        throw new Error(error.message); 
+    const response = await fetch(PROXY_SERVER_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ prompt }),
+    });
+
+    // Handle non-2xx responses from our backend.
+    if (!response.ok) {
+      let errorData = { error: `HTTP error: ${response.status}` }; // Default error
+      try {
+        errorData = await response.json(); // Try to get a more specific error from backend.
+      } catch (e) {
+        // Backend didn't send JSON, or other parsing error.
+        console.warn("Could not parse error response from backend:", e);
+      }
+      console.error('Error from backend:', errorData);
+      throw new Error(errorData.error || `Request failed with status ${response.status}`);
     }
-    throw new Error("An unknown error occurred while communicating with AI.");
+
+    const data = await response.json();
+
+    // Ensure the backend sent back the expected 'text' field.
+    if (typeof data.text !== 'string') {
+        console.error('Unexpected response structure from backend:', data);
+        throw new Error('Backend response did not include a text field.');
+    }
+    return data.text;
+
+  } catch (error) {
+    console.error("sendMessageToGemini failed:", error);
+    // Re-throw for the UI to handle.
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error("An unknown error occurred while sending message.");
   }
 }
