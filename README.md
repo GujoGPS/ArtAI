@@ -14,6 +14,7 @@
   * [Installation](#installation)
   * [Running the Application](#running-the-application)
 * [📂 Folder Structure](#-folder-structure)
+* [📜 License](#-license)
 
 ---
 
@@ -166,9 +167,17 @@ npm start
 ├── .env               # (Local, DO NOT COMMIT) API Key for the backend
 ├── .gitignore
 ├── index.html
-├── package.json
+├── LICENSE            # (NEW) MIT License file
+├── package.json       # (Modified for license)
 ├── package-lock.json
-├── README.md
-├── server.mjs         # (NEW) Express backend server
+├── README.md          # (This file)
+├── server.mjs         # Express backend server
 ├── tsconfig.json
-└── vite.config.ts     # (Modified) No longer injects API_KEY
+└── vite.config.ts
+```
+
+---
+
+## 📜 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE.md) file for details.
