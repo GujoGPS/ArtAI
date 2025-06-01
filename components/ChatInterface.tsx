@@ -46,12 +46,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   useEffect(scrollToBottom, [messages]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    // Se o usuário apertar Enter sem a tecla Shift, envie a mensagem
+    // If the user presses Enter without the Shift key, send the message
     if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault(); // Impede a quebra de linha
+      e.preventDefault(); // Prevents a new line
       handleSubmit();
     }
-    // Se apertar Enter com Shift, o comportamento padrão (nova linha) acontece
+    // If Shift + Enter is pressed, the default behavior (new line) occurs
   };
 
   const handleSubmit = () => {

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Document, Page } from 'react-pdf';
-// Note: Não importamos mais PDFDocumentProxy diretamente aqui para evitar conflitos.
-// A biblioteca react-pdf gerencia os tipos internamente.
+// The react-pdf library manages the types internally.
 
 interface PdfViewerProps {
   file: File | null;
@@ -9,8 +8,9 @@ interface PdfViewerProps {
   currentPageNumber: number;
   numPages: number;
   onPageChange: (page: number) => void;
+  // Using 'any' here to bypass the residual type conflict for the pdf object.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onLoadSuccess: (pdf: any) => void; // Usamos 'any' aqui para contornar o conflito de tipo residual.
+  onLoadSuccess: (pdf: any) => void; 
   isExtractingPageText: boolean;
   isSummarizing: boolean;
 }
@@ -25,7 +25,6 @@ const PdfViewer: React.FC<PdfViewerProps> = ({
   isExtractingPageText,
   isSummarizing,
 }) => {
-  // O resto do componente continua o mesmo
   const goToPrevPage = () => {
     if (currentPageNumber > 1) {
       onPageChange(currentPageNumber - 1);
@@ -54,7 +53,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({
             Page {currentPageNumber} of {numPages || '--'}
             {isExtractingPageText && <span className="ml-2 text-xs">(Extracting text...)</span>}
           </span>
-          {isSummarizing && <span className="text-xs text-yellow-300 animate-pulse">Gerando resumo do artigo...</span>}
+          {isSummarizing && <span className="text-xs text-yellow-300 animate-pulse">Generating article summary...</span>}
         </div>
         <button
           onClick={goToNextPage}
@@ -78,7 +77,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({
             <Page 
               pageNumber={currentPageNumber}
               renderTextLayer={true}
-              renderAnnotationLayer={false} // Desabilitar para evitar possíveis erros de CSS
+              renderAnnotationLayer={false} // Disable to prevent potential CSS errors
               className="drop-shadow-lg"
               loading={<div className="flex justify-center items-center h-full"><p className="text-slate-300 text-sm">Loading page {currentPageNumber}...</p></div>}
               error={<div className="flex justify-center items-center h-full p-4"><p className="text-red-400 text-lg">Error loading page {currentPageNumber}.</p></div>}
