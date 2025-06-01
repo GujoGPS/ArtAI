@@ -164,14 +164,14 @@ npm start
 │   ├── index.tsx
 │   ├── types.ts
 │   └── vite-env.d.ts
-├── .env               # (Local, DO NOT COMMIT) API Key for the backend
+├── .env              
 ├── .gitignore
 ├── index.html
-├── LICENSE            # (NEW) MIT License file
-├── package.json       # (Modified for license)
+├── LICENSE           
+├── package.json      
 ├── package-lock.json
-├── README.md          # (This file)
-├── server.mjs         # Express backend server
+├── README.md        
+├── server.mjs        
 ├── tsconfig.json
 └── vite.config.ts
 ```
